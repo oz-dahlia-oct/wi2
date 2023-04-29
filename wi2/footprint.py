@@ -89,10 +89,28 @@ def search(d, prefs, age=30, login=1, tall=[130, 200], edu_background=1):
 
 def check_user(d, user_id):
 
+    json_file_name = f'./candidates/uid_{user_id}.json'
     detail = {'user_id': f'uid_{user_id}', }
+    time_now = datetime.now()
+    time_now_str = datetime.strftime(time_now, '%Y-%m-%d %H:%M:%S')
+    detail['update_at'] = time_now_str
+
+    if os.path.isfile(json_file_name):
+        with open(json_file_name, 'r') as f:
+            d = json.load(f)
+            detail['datetime'] = d['datetime']
+    else:
+        detail['datetime'] = time_now_str
+
     soup = BeautifulSoup(d.page_source, 'html.parser')
+    # データのスクレイピング
+    # **** 実装予定 ****
+
+
+    with open(json_file_name, 'w', encoding='utf-8') as f:
+        json.dump(detail, f, indent=4, sort_keys=True, ensure_ascii=False)
     
-    return detail
+    return
 
 
 
@@ -104,6 +122,10 @@ def get_users(d, wait_time=1.5):
     result_raw = result_elm.text.replace('\n', '')
     result_txt = result_elm.text[:-2].replace(',', '')
     result_num = int(result_txt)
+
+    if result_num == 0:
+        return result_raw, result_num, []
+
     scroll_count = result_num // 10
 
     for i in range(scroll_count):
@@ -133,14 +155,15 @@ def exe_pattern(d, age, prefs, last_login, tall=[1, 999], edu_background=1, wait
     search_result, click_count, user_ids = get_users(d, wait_time=wait_time)
     result['search_result'] = search_result
 
-    # 足跡をつける
-    for user_id in user_ids:
-        user_url = f'https://with.is/users/{user_id}'
-        d.get(user_url)
+    if user_ids:
+        # 足跡をつける
+        for user_id in user_ids:
+            user_url = f'https://with.is/users/{user_id}'
+            d.get(user_url)
 
-        # ユーザーデータを抽出
-        user_detail = check_user(d, user_id)
-        time.sleep(1)
+            # ユーザーデータを抽出
+            check_user(d, user_id)
+            time.sleep(1)
 
     result['clickcount'] = len(user_ids)
 
