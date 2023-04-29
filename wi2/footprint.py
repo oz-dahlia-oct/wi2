@@ -25,6 +25,7 @@ def search(d, prefs, age=30, login=1, tall=[130, 200], edu_background=1):
     # 検索条件編集画面に移動
     d.get('https://with.is/search/edit')
     time.sleep(2)
+    d.execute_script('window.scrollBy(0, -1000);')
 
 
     # 条件リセットボタンクリック
@@ -86,19 +87,34 @@ def search(d, prefs, age=30, login=1, tall=[130, 200], edu_background=1):
 
 
 
-def check_user():
-    pass
+def check_user(d, user_id):
+
+    detail = {'user_id': f'uid_{user_id}', }
+    soup = BeautifulSoup(d.page_source, 'html.parser')
+    
+    return detail
 
 
 
 
-def scan_users(d, wait_time=1.5, scroll_count=50):
+def get_users(d, wait_time=1.5):
+
+    soup = BeautifulSoup(d.page_source, 'html.parser')
+    result_elm = soup.find('div', class_='search-controller_summary')
+    result_raw = result_elm.text.replace('\n', '')
+    result_txt = result_elm.text[:-2].replace(',', '')
+    result_num = int(result_txt)
+    scroll_count = result_num // 10
 
     for i in range(scroll_count):
         d.execute_script('window.scrollBy(0, 1000);')
         time.sleep(0.2)
 
-    return 100
+    soup = BeautifulSoup(d.page_source, 'html.parser')
+    user_elms = soup.find_all('div', class_='user-card-small is-basic touching-effect-user-card user-area')
+    user_ids = [elm['data-user-id'] for elm in user_elms]
+
+    return result_raw, result_num, user_ids
 
 
 
@@ -109,22 +125,25 @@ def exe_pattern(d, age, prefs, last_login, tall=[1, 999], edu_background=1, wait
 
     # 検索条件を設定して検索実行
     search(d, age=age, prefs=prefs, login=f'{last_login}', tall=tall, edu_background=edu_background)
-    time.sleep(2)
     
     # 検索結果なしの場合をチェック
+    # **** 実装予定 ******
 
-    # 検索結果（件数）を取得・表示
-    result['search_result'] = "" # あとで変更
+    # 検索結果画面からユーザー数、ユーザーIDを取得
+    search_result, click_count, user_ids = get_users(d, wait_time=wait_time)
+    result['search_result'] = search_result
 
-    # スクロール数を計算
+    # 足跡をつける
+    for user_id in user_ids:
+        user_url = f'https://with.is/users/{user_id}'
+        d.get(user_url)
 
-    # ユーザーに足跡をつける
-    scroll_count = 20 # あとで削除
-    click_count = scan_users(
-        d, wait_time=wait_time, scroll_count=scroll_count
-    )
+        # ユーザーデータを抽出
+        user_detail = check_user(d, user_id)
+        time.sleep(1)
 
-    result['clickcount'] = click_count
-    return True, result, result['search_result'], click_count
+    result['clickcount'] = len(user_ids)
+
+    return True, result, search_result, click_count
 
 

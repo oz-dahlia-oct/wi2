@@ -62,7 +62,7 @@ def execute(
         
     except Exception as e:
         print(e)
-        time.sleep(120)
+        time.sleep(30)
                         
 
 
