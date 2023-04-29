@@ -33,6 +33,9 @@ test.py
 # driver
 /driver/*
 
+# candidates
+/candidates/*.json
+
 # notebook, myutil.py
 *.ipynb
 myutil.py

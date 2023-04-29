@@ -30,9 +30,10 @@ def search(d, prefs, age=30, login=1, tall=[130, 200], edu_background=1):
 
     # 条件リセットボタンクリック
     d.find_element(By.NAME, "button").click()
+    time.sleep(2)
     # 条件リセット確定
     d.find_element(By.CSS_SELECTOR, ".remove-all-conditions").click()
-    time.sleep(2)
+    time.sleep(3)
 
 
     # 居住地
@@ -102,10 +103,20 @@ def check_user(d, user_id):
     else:
         detail['datetime'] = time_now_str
 
-    soup = BeautifulSoup(d.page_source, 'html.parser')
     # データのスクレイピング
-    # **** 実装予定 ****
+    soup = BeautifulSoup(d.page_source, 'html.parser')
+    
+    # いいね
+    like_elm = soup.find('div', class_='user-likes-count text-primary')
+    like_txt = like_elm.text.replace('\n', '')
+    detail['いいね'] = like_txt
 
+    # 基本情報
+    table_elm = soup.find('table', class_='profile-detail_lists')
+    tr_elms = table_elm.find_all('tr')
+    for tr_elm in tr_elms:
+        key = tr_elm.find('th').text
+        detail[key] = tr_elm.find('td').text
 
     with open(json_file_name, 'w', encoding='utf-8') as f:
         json.dump(detail, f, indent=4, sort_keys=True, ensure_ascii=False)
