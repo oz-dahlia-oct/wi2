@@ -27,7 +27,6 @@ def search(d, prefs, age=30, login=1, tall=[130, 200], edu_background=1):
     time.sleep(2)
     d.execute_script('window.scrollBy(0, -1000);')
 
-
     # 条件リセットボタンクリック
     d.find_element(By.NAME, "button").click()
     time.sleep(2)
@@ -35,6 +34,8 @@ def search(d, prefs, age=30, login=1, tall=[130, 200], edu_background=1):
     d.find_element(By.CSS_SELECTOR, ".remove-all-conditions").click()
     time.sleep(3)
 
+    # スクロール
+    d.execute_script('window.scrollBy(0, 500);')
 
     # 居住地
     d.find_element(By.CSS_SELECTOR, ".open-addresses-dialog > .selected-by-dialog").click()
@@ -43,7 +44,6 @@ def search(d, prefs, age=30, login=1, tall=[130, 200], edu_background=1):
         d.find_element(By.XPATH, f"//label[@for='search_form_addresses_{pref}']").click()
     # ×クリック
     d.find_element(By.CSS_SELECTOR, ".close-addresses-dialog > .icon-close-dialog").click()
-
 
     # 年齢（開始）
     dropdown = d.find_element(By.ID, "search_form_min_age")
@@ -54,7 +54,6 @@ def search(d, prefs, age=30, login=1, tall=[130, 200], edu_background=1):
     dropdown = Select(dropdown)
     dropdown.select_by_value(f'{age}')
 
-
     # 身長（開始）
     dropdown = d.find_element(By.ID, "search_form_min_height")
     dropdown = Select(dropdown)
@@ -64,10 +63,8 @@ def search(d, prefs, age=30, login=1, tall=[130, 200], edu_background=1):
     dropdown = Select(dropdown)
     dropdown.select_by_value(f'{tall[1]}')
 
-
     # スクロール
-    d.execute_script('window.scrollBy(0, 1000);')
-
+    d.execute_script('window.scrollBy(0, 900);')
 
     # 学歴
     d.find_element(By.CSS_SELECTOR, ".open-educations-dialog > .selected-by-dialog").click()
@@ -75,6 +72,8 @@ def search(d, prefs, age=30, login=1, tall=[130, 200], edu_background=1):
     # ×クリック
     d.find_element(By.CSS_SELECTOR, ".close-educations-dialog > .icon-close-dialog").click()
 
+    # スクロール
+    d.execute_script('window.scrollBy(0, 500);')
 
     # ラストログイン
     dropdown = d.find_element(By.ID, "search_form_last_login")
